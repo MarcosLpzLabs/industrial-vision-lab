@@ -1,0 +1,9 @@
+Genera un resumen técnico de nuestro avance para que pueda transferirlo a otro modelo de IA sin perder contexto. El resumen debe incluir de forma concisa:
+
+El objetivo final del proyecto y las tecnologías que estamos usando.
+
+La estructura actual del código (módulos, bases de datos o funciones clave creadas).
+
+Mi nivel actual de comprensión (qué conceptos ya domino y cuáles me cuesta entender).
+
+El estado exacto en el que nos quedamos y cuál es el siguiente paso inmediato que debo dar."

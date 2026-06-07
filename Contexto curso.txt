@@ -1,0 +1,381 @@
+# RESUMEN DE FORMACIÓN Y ESTADO ACTUAL
+
+## Objetivo final
+
+Estoy siguiendo un roadmap para convertirme en un Ingeniero de Sistemas Inteligentes Industriales.
+
+Objetivo profesional a medio plazo:
+
+* Fundar junto a otros 3 socios una empresa tecnológica orientada a IA industrial.
+* Especializarme en Computer Vision, IA aplicada, Edge AI, integración industrial y arquitectura de software.
+* Aprender construyendo productos reales y reutilizables.
+* Desarrollar soluciones industriales completas, no únicamente modelos de IA.
+
+Tecnologías objetivo del roadmap:
+
+* Python
+* Linux (CachyOS/Arch)
+* Git y GitHub
+* Docker
+* OpenCV
+* PyTorch
+* YOLO
+* FastAPI
+* PostgreSQL
+* MQTT
+* OPC-UA
+* Ollama
+* ONNX
+* TensorRT
+* Edge AI (Jetson)
+
+---
+
+# Perfil técnico del alumno
+
+Formación:
+
+* Grado en Ingeniería Electrónica Industrial y Automática.
+
+Experiencia:
+
+* Automatización industrial.
+* PLCs Siemens.
+* Robótica ABB y KUKA.
+* VBA.
+* Visión artificial.
+* Python.
+* IA básica aplicada.
+
+Intereses principales:
+
+* Computer Vision.
+* IA industrial.
+* Robótica.
+* Edge AI.
+* Sistemas inteligentes.
+* Desarrollo de software.
+
+Disponibilidad:
+
+* Aproximadamente 2 horas diarias entre semana.
+* 4-5 horas diarias los fines de semana.
+
+---
+
+# Estado actual del aprendizaje
+
+## Linux
+
+Nivel aproximado: 6/10
+
+Conocimientos:
+
+* Usa CachyOS como sistema principal.
+* Utiliza terminal habitualmente.
+* Conoce comandos básicos.
+* Ha utilizado SSH y Docker alguna vez.
+* No domina todavía administración de sistemas.
+
+Pendiente:
+
+* systemd
+* journalctl
+* networking
+* despliegues
+* Docker serio
+
+---
+
+## Python
+
+Nivel aproximado: 7/10
+
+Conocimientos:
+
+* Clases.
+* Estructuración básica.
+* Entornos virtuales.
+* OpenCV.
+* Algo de PyTorch y YOLO.
+* Buenas prácticas básicas.
+
+Pendiente:
+
+* Arquitectura de software.
+* Diseño de APIs.
+* Testing.
+* Tipado avanzado.
+* Modularización profesional.
+
+---
+
+## Git
+
+Nivel aproximado al inicio: 3/10
+Nivel actual estimado: 5/10
+
+Conceptos ya comprendidos:
+
+* Git vs GitHub.
+* add.
+* commit.
+* push.
+* ramas.
+* merge.
+* estados del proyecto.
+
+Ejercicios realizados:
+
+* Creación de repositorio.
+* Uso de ramas.
+* Merge de ramas.
+* Comprensión de cómo Git modifica físicamente el árbol de archivos.
+
+Concepto importante comprendido:
+Git NO guarda archivos.
+Git guarda estados completos del proyecto.
+
+---
+
+# Proyecto actual
+
+Nombre:
+
+industrial-vision-lab
+
+Objetivo:
+Servir como base para todos los futuros proyectos de visión artificial industrial.
+
+Estructura actual:
+
+industrial-vision-lab/
+│
+├── apps/
+│   ├── test_camera.py
+│   └── camera_info.py
+│
+├── services/
+│   └── camera_service.py
+│
+├── datasets/
+├── models/
+├── docs/
+├── experiments/
+├── scripts/
+├── README.md
+├── .gitignore
+└── .venv/
+
+---
+
+# Funcionalidades implementadas
+
+## test_camera.py
+
+Funcionalidad:
+
+* Abrir webcam.
+* Mostrar vídeo.
+* Salir con tecla Q.
+
+---
+
+## camera_info.py
+
+Funcionalidad:
+
+* Mostrar versión de OpenCV.
+* Mostrar resolución.
+* Mostrar FPS.
+* Mostrar vídeo con información superpuesta.
+
+---
+
+# Problemas encontrados
+
+## VSCode no detectaba OpenCV
+
+Causa:
+VSCode utilizaba un intérprete distinto al del entorno virtual.
+
+Aprendizaje:
+Seleccionar correctamente el intérprete Python.
+
+---
+
+## Error Git Commit
+
+Error:
+
+cannot run vi
+
+Causa:
+Git intentaba abrir vi para introducir el mensaje.
+
+Solución propuesta:
+
+git config --global core.editor "code --wait"
+
+---
+
+## Error Python
+
+Error:
+
+ModuleNotFoundError: No module named 'services'
+
+Estructura:
+
+industrial-vision-lab/
+├── apps/
+└── services/
+
+Import utilizado:
+
+from services.camera_service import CameraService
+
+Causa:
+El script se estaba ejecutando como:
+
+python apps/camera_info.py
+
+y Python tomaba apps como raíz.
+
+Solución explicada:
+Crear:
+
+apps/**init**.py
+services/**init**.py
+
+y ejecutar:
+
+python -m apps.camera_info
+
+---
+
+# Ejercicio actual en progreso
+
+Objetivo:
+Refactorizar el proyecto para introducir arquitectura orientada a objetos.
+
+Se creó:
+
+services/camera_service.py
+
+Implementación realizada por el alumno:
+
+class CameraService
+
+La clase:
+
+* Abre cámara.
+* Obtiene FPS.
+* Muestra vídeo.
+* Libera recursos.
+
+---
+
+# Feedback recibido sobre el diseño
+
+Problema detectado:
+
+La clase ejecuta demasiada lógica dentro de **init**().
+
+Actualmente:
+
+CameraService()
+↓
+inicializar_camara()
+↓
+cap_video()
+↓
+bucle infinito
+
+Esto significa que simplemente instanciar el objeto ya ejecuta toda la aplicación.
+
+Se explicó que:
+
+Un constructor debería:
+
+* inicializar recursos.
+* guardar configuración.
+
+Un constructor NO debería:
+
+* lanzar bucles infinitos.
+* abrir interfaces.
+* ejecutar la lógica principal.
+
+---
+
+# Concepto que estamos aprendiendo ahora
+
+Arquitectura de software.
+
+Separación de responsabilidades.
+
+La idea es que:
+
+CameraService se encargue únicamente de:
+
+* abrir cámara.
+* leer frame.
+* obtener FPS.
+* obtener resolución.
+* liberar recursos.
+
+Y que la aplicación principal decida:
+
+* mostrar vídeo.
+* ejecutar IA.
+* guardar imágenes.
+* procesar datos.
+
+---
+
+# Estado exacto donde nos quedamos
+
+El profesor pidió NO escribir más implementación todavía.
+
+El ejercicio pendiente consiste en diseñar la API de CameraService.
+
+NO implementar.
+
+Solo diseñar.
+
+Ejemplo orientativo:
+
+class CameraService:
+def **init**(self):
+pass
+
+```
+def get_fps(self):
+    pass
+
+def get_resolution(self):
+    pass
+
+def read_frame(self):
+    pass
+
+def release(self):
+    pass
+```
+
+El objetivo es pensar primero como arquitecto de software antes de programar.
+
+---
+
+# Próximo paso inmediato
+
+Diseñar únicamente la interfaz pública de CameraService.
+
+Es decir:
+
+* Qué métodos debe exponer.
+* Qué responsabilidad tendrá cada uno.
+* Sin implementar todavía la lógica interna.
+
+Después revisar el diseño y refactorizar el proyecto siguiendo principios de separación de responsabilidades y reutilización de código.
