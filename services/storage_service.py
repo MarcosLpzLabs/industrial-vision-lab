@@ -5,6 +5,7 @@ class StorageService:
         self.storage_path = storage_path
         
     def save_frame(self,frame,filename):
-        pass
+        cv2.imwrite(f"{self.storage_path}/{filename}", frame)
+        
     def save_log(self,log_data,filename):
         pass
