@@ -21,8 +21,10 @@ if __name__ == "__main__":
         #los servicios siempre se instancian fuera del loop principal para evitar problemas de rendimiento  
         servicio = CameraService()
         storage = StorageService(f"datasets/")
+
+
     except CameraConectionError as exc:
-        print(exc)
+        logging.error(f"Error de conexión de la cámara: {exc}")
         raise SystemExit(1)
 
     #print(f"Cámara abierta en índice {servicio.camera_index}")
@@ -31,7 +33,16 @@ if __name__ == "__main__":
         if not ret:
             print("Error: no se pudo leer el frame")
             break
+        # 1. Extraemos la ROI usando el nuevo método limpio (sin pasarle el frame)
+        roi = servicio.roi_matrix(200, 100, 500, 350)
 
+        # 2. Dibujamos el rectángulo en el frame original para el operario
+        cv2.rectangle(frame, (200, 100), (500, 350), (255, 0, 0), 2) #type: ignore
+
+        
+        if roi is not None:
+            servicio.show_roi(roi)
+        # 3. Mostramos las ventanas
         cv2.imshow("Camera Info", frame) # type: ignore
 
         cnt -= 1

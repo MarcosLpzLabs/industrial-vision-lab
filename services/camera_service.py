@@ -1,6 +1,6 @@
 import cv2
 import logging
-
+import numpy
 
 
 class CameraConectionError(Exception):
@@ -47,6 +47,10 @@ class CameraService:
             logging.error(f"Error: no se puede abrir la cámara en el índice {self.camera_index}")
             return False, None
         self.ret, self.frame = self.camera.read()
+
+        #temporal
+        #frame_hsv = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
+        #print("Píxel (0,0) en HSV:", frame_hsv[0, 0])
         if not self.ret:
             logging.error("Error: no se pudo leer el frame")
             return False, None
@@ -65,6 +69,28 @@ class CameraService:
             cv2.LINE_AA,
         )
         return self.ret, self.frame
+    
+    def roi_matrix(self, x_inicio, y_inicio, x_fin, y_fin):
+        # Usamos directamente self.frame, que ya es la matriz real leída por el servicio
+        if not self.ret or not isinstance(self.frame, numpy.ndarray):
+            logging.warning("No hay un frame válido disponible para recortar la ROI.")
+            return None
+
+        # Asegurarse de que las coordenadas estén dentro de los límites del frame
+        x = max(0, min(x_inicio, self.frame.shape[1] - 1))
+        y = max(0, min(y_inicio, self.frame.shape[0] - 1))
+        width = max(1, min(x_fin - x, self.frame.shape[1] - x))
+        height = max(1, min(y_fin - y, self.frame.shape[0] - y))
+
+        roi = self.frame[y:y + height, x:x + width]
+        return roi
+    
+    def show_roi(self, roi):
+        # Este método ahora solo tiene UNA responsabilidad: mostrar lo que le mandes
+        if roi is not None:
+            cv2.imshow("ROI", roi)
+
+
     def release(self):
         self.camera.release()   
         cv2.destroyAllWindows()
