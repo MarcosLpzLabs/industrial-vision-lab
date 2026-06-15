@@ -1,5 +1,11 @@
 import cv2
+import logging
 
+
+
+class CameraConectionError(Exception):
+    """Excepción personalizada para errores de conexión de la cámara."""
+    pass
 class CameraService:
     def __init__(self, camera=0, max_index=4):
         super().__init__()
@@ -14,14 +20,15 @@ class CameraService:
                 self.camera = cv2.VideoCapture(idx)
                 if self.camera.isOpened():
                     self.camera_index = idx
-                    print(f"Cámara abierta en índice {idx}")
+                    logging.info(f"Cámara abierta en índice {idx}")
                     break
                 self.camera.release()
 
         if not self.camera.isOpened():
-            raise RuntimeError(
+            raise CameraConectionError(f"No se puede abrir ninguna cámara. Intentados índices 0-{max_index}")
+            '''raise RuntimeError(
                 f"No se puede abrir ninguna cámara. Intentados índices 0-{max_index}"
-            )
+            )'''
 
         self.text_fps = ""
         self.ret = False
@@ -37,11 +44,11 @@ class CameraService:
 
     def capturar_frame(self):
         if not self.camera.isOpened():
-            print("Error: no se puede abrir la cámara")
+            logging.error(f"Error: no se puede abrir la cámara en el índice {self.camera_index}")
             return False, None
         self.ret, self.frame = self.camera.read()
         if not self.ret:
-            print("Error: no se pudo leer el frame")
+            logging.error("Error: no se pudo leer el frame")
             return False, None
 
         self.mostrar_fps()
@@ -61,4 +68,5 @@ class CameraService:
     def release(self):
         self.camera.release()   
         cv2.destroyAllWindows()
+
 

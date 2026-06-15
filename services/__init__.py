@@ -1,2 +1,3 @@
 from services.camera_service import CameraService
 from services.storage_service import StorageService
+from services.camera_service import CameraConectionError
