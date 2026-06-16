@@ -89,7 +89,26 @@ class CameraService:
         # Este método ahora solo tiene UNA responsabilidad: mostrar lo que le mandes
         if roi is not None:
             cv2.imshow("ROI", roi)
+    def roi_to_gray(self, roi):
+        """Convierte la ROI a escala de grises UNA sola vez."""
+        if roi is not None:
+            return cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+        return None
 
+    def threshold_roi(self, grey_roi):
+        if grey_roi is not None:
+            _, thresh_roi = cv2.threshold(grey_roi, 127, 255, cv2.THRESH_BINARY)
+            cv2.imshow("ROI Threshold", thresh_roi)
+
+    def adaptive_threshold_roi(self, grey_roi):
+        if grey_roi is not None:
+            adaptative_roi = cv2.adaptiveThreshold(grey_roi, 255, 
+                                                cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
+                                                cv2.THRESH_BINARY, 
+                                                11, # Tamaño del bloque de píxeles vecinos para calcular la media
+                                                2 # Constante que se resta a la media
+                                                )
+            cv2.imshow("ROI Adaptative Threshold", adaptative_roi)
 
     def release(self):
         self.camera.release()   

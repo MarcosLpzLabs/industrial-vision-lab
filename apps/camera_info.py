@@ -42,6 +42,12 @@ if __name__ == "__main__":
         
         if roi is not None:
             servicio.show_roi(roi)
+            #pasamos la ROI a escala de grises
+            grey_roi = servicio.roi_to_gray(roi)
+            #threshold
+            servicio.threshold_roi(grey_roi)
+            #adaptive threshold
+            servicio.adaptive_threshold_roi(grey_roi)
         # 3. Mostramos las ventanas
         cv2.imshow("Camera Info", frame) # type: ignore
 
