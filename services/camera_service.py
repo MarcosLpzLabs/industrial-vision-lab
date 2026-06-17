@@ -151,6 +151,38 @@ class CameraService:
         return None
 
 
+
+    def find_and_filter_contours(self, edges_image, min_area=500, max_area=50000):
+        """Encuentra los contornos en la imagen de bordes y los filtra por tamaño."""
+        if edges_image is not None:
+            # cv2.findContours necesita: imagen, modo de recuperación, método de aproximación
+            # RETR_EXTERNAL solo busca los contornos exteriores (ignora agujeros internos por ahora)
+            # CHAIN_APPROX_SIMPLE comprime las líneas rectas para ahorrar memoria
+            contours, _ = cv2.findContours(edges_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            
+            valid_contours = []
+            for cnt in contours:
+                area = cv2.contourArea(cnt)
+                # Filtramos por umbral de área para evitar falsos positivos (ruido residual)
+                if min_area <= area <= max_area:
+                    valid_contours.append(cnt)
+            
+            return valid_contours
+        return []
+
+    def bounding_box(self, contour):
+        """Calcula el rectángulo delimitador de un contorno dado."""
+        if contour is not None:
+            x, y, w, h = cv2.boundingRect(contour)
+            return (x, y, w, h)
+        return None
+    
+    def area_of_contour(self, contour):
+        """Calcula el área de un contorno dado."""
+        if contour is not None:
+            return cv2.contourArea(contour)
+        return 0
+
     def release(self):
         self.camera.release()   
         cv2.destroyAllWindows()
