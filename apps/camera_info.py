@@ -44,10 +44,28 @@ if __name__ == "__main__":
             servicio.show_roi(roi)
             #pasamos la ROI a escala de grises
             grey_roi = servicio.roi_to_gray(roi)
+            #cv2.imshow("ROI Grayscale", grey_roi) #type: ignore
+
+            #noise filter
+            filtered_roi = servicio.noise_filter(grey_roi)
+            #cv2.imshow("ROI Noise Filtered", filtered_roi) #type: ignore
+
             #threshold
-            servicio.threshold_roi(grey_roi)
+            threshold_roi = servicio.threshold_roi(filtered_roi)
+            #cv2.imshow("ROI Threshold", threshold_roi) #type: ignore
+
             #adaptive threshold
-            servicio.adaptive_threshold_roi(grey_roi)
+            adaptative_roi = servicio.adaptive_threshold_roi(filtered_roi)
+            #cv2.imshow("ROI Adaptative Threshold", adaptative_roi) #type: ignore
+
+            #morph clean
+            morph_cleaned = servicio.morph_clean(adaptative_roi)
+            #cv2.imshow("ROI Morph Cleaned", morph_cleaned) #type: ignore
+
+            #edge detection
+            edges = servicio.detect_edges(morph_cleaned)
+            cv2.imshow("ROI Edge Detection", edges) #type: ignore
+
         # 3. Mostramos las ventanas
         cv2.imshow("Camera Info", frame) # type: ignore
 
@@ -62,11 +80,4 @@ if __name__ == "__main__":
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
     servicio.release()
-    
-
-    
-
-
-
-
 

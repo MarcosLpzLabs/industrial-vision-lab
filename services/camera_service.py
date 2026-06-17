@@ -70,6 +70,7 @@ class CameraService:
         )
         return self.ret, self.frame
     
+    
     def roi_matrix(self, x_inicio, y_inicio, x_fin, y_fin):
         # Usamos directamente self.frame, que ya es la matriz real leída por el servicio
         if not self.ret or not isinstance(self.frame, numpy.ndarray):
@@ -95,10 +96,21 @@ class CameraService:
             return cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
         return None
 
+    def noise_filter(self, grey_roi):
+        """Aplica filtros de suavizado para eliminar el ruido electrónico de la ROI."""
+        if grey_roi is not None:
+            # Aplicar un filtro de mediana para reducir el ruido
+            filtered_roi = cv2.medianBlur(grey_roi, 5)
+            #cv2.imshow("ROI Noise Filtered", filtered_roi)
+            return filtered_roi
+        return None
+
     def threshold_roi(self, grey_roi):
         if grey_roi is not None:
             _, thresh_roi = cv2.threshold(grey_roi, 127, 255, cv2.THRESH_BINARY)
-            cv2.imshow("ROI Threshold", thresh_roi)
+            #cv2.imshow("ROI Threshold", thresh_roi)
+            return thresh_roi
+        return None
 
     def adaptive_threshold_roi(self, grey_roi):
         if grey_roi is not None:
@@ -108,7 +120,36 @@ class CameraService:
                                                 11, # Tamaño del bloque de píxeles vecinos para calcular la media
                                                 2 # Constante que se resta a la media
                                                 )
-            cv2.imshow("ROI Adaptative Threshold", adaptative_roi)
+            #cv2.imshow("ROI Adaptative Threshold", adaptative_roi)
+            return adaptative_roi
+        return None
+    
+
+    def morph_clean(self, binary_roi):
+        if binary_roi is not None:
+            # 1. Definimos un kernel rectangular de 3x3 (nuestro margen de vecindad)
+            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+            
+            # 2. Aplicamos un 'Opening' para eliminar cualquier mota de ruido residual exterior
+            cleaned = cv2.morphologyEx(binary_roi, cv2.MORPH_OPEN, kernel)
+            
+            # 3. Aplicamos un 'Closing' por si han quedado poros abiertos dentro del objeto
+            cleaned = cv2.morphologyEx(cleaned, cv2.MORPH_CLOSE, kernel)
+            
+            #cv2.imshow("ROI Morph Cleaned", cleaned)
+            return cleaned
+        return None
+    
+    def detect_edges(self,image):
+        """Detecta los contornos de la pieza usando el algoritmo de Canny."""
+        if image is not None:
+            # cv2.Canny(imagen, umbral_bajo, umbral_alto)
+            # Como nuestra imagen ya es binaria (0 o 255), los umbrales pueden ser drásticos
+            edges = cv2.Canny(image, 50, 150)
+            #cv2.imshow("ROI Edges (Canny)", edges)
+            return edges
+        return None
+
 
     def release(self):
         self.camera.release()   
