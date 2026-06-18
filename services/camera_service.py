@@ -187,4 +187,6 @@ class CameraService:
         self.camera.release()   
         cv2.destroyAllWindows()
 
+    def callback_function(self, frame):
+        pass #void function, can be implemented later if needed
 
