@@ -1,0 +1,50 @@
+A continuación, tienes el Resumen Técnico y de Estado del Curso diseñado específicamente para transferirse a cualquier otro modelo de IA. Recoge tus objetivos profesionales a medio plazo, tu trasfondo en automatización y diagnostica con precisión quirúrgica tus puntos fuertes y tus fricciones para mantener el enfoque de "aprender construyendo".
+
+DOCUMENTO DE TRASPASO INDUSTRIAL: PROYECTO GENIIA_SERVICES
+1. OBJETIVO DEL PROYECTO Y TECNOLOGÍAS (CURSO PRÁCTICO)
+Enfoque formativo: Este proyecto no es un desarrollo guiado convencional; es un curso práctico de ingeniería de software para visión artificial industrial. El alumno aprende conceptos arquitectónicos avanzados construyendo una solución reutilizable y robusta, simulando una celda de inspección en planta.
+
+Objetivo del Producto: Aislar una Región de Interés (ROI), segmentar piezas en tiempo real, filtrar ruido electrónico de cámara, inspeccionar geometría por contornos, discriminar piezas válidas/defectuosas mediante interfaces HMI dinámicas y registrar el histórico de producción con persistencia local limpia.
+
+Tecnologías en uso actual: Python 3, OpenCV (cv2), NumPy, Logging, Datetime y persistencia plana en archivos CSV.
+
+Entorno de desarrollo: Arch-Linux (CachyOS) con KDE, entorno nativo de VS Code.
+
+2. ESTRUCTURA ACTUAL DEL CÓDIGO
+Arquitectura modular orientada a objetos dividida en dos capas de servicios independientes y un script de aplicación:
+
+CameraService (services.py): Encapsula el ciclo de vida del hardware de captura (cv2.VideoCapture). Implementa un bucle de rescate automático de índices (0 a 4) si el dispositivo principal falla y levanta una excepción personalizada de bajo nivel (CameraConectionError). Contiene métodos reutilizables y limpios de procesamiento: roi_matrix, roi_to_gray, noise_filter (filtro de mediana), threshold_roi, adaptive_threshold_roi, morph_clean (operaciones morfológicas de Opening y Closing), detect_edges (Canny) y find_and_filter_contours.
+
+StorageService (services.py): Centraliza la persistencia en disco. Gestiona save_frame para volcados de imágenes en formato JPG y registrar_metricas, que gestiona la escritura síncrona en el histórico reporte_produccion.csv controlando la creación dinámica de cabeceras y los saltos de línea estrictos (\n).
+
+camera_info.py (Script de Aplicación principal): Ejecuta el bucle while True secuencial. Une las capas de servicios, actualiza la interfaz HMI del operario y ejecuta las llamadas a pantalla siguiendo la regla de oro industrial: primero se procesa y dibuja todo sobre las matrices en memoria; solo al final del ciclo se renderizan las ventanas con cv2.imshow.
+
+3. ESTADO ACTUAL DEL APRENDIZAJE Y PERFIL DEL ALUMNO
+Perfil de entrada: Graduado en Ingeniería Electrónica Industrial y Automática. Experto en automatización clásica (PLCs Siemens, robots KUKA/ABB). Esto le da una ventaja competitiva brutal: entiende perfectamente las necesidades de una planta real, los tiempos de ciclo y la necesidad de robustez estructural en el software.
+
+Conceptos ya Dominados (Puntos Fuertes)
+Arquitectura Limpia y SOLID: Comprensión profunda de la separación de responsabilidades en servicios independientes y el aislamiento de la lógica de hardware.
+
+Matemática de Matrices (NumPy): Manipulación de arrays multidimensionales, recorte espacial de regiones (ROI) y aplicación de restricciones (clamping) para evitar desbordamientos de memoria en los límites del frame.
+
+Pipeline de Procesamiento Digital de Imágenes (PDI): Lógica secuencial de filtrado de ruido electrónico, binarización adaptativa gaussiana, limpieza morfológica e inspección geométrica basada en análisis topológico de contornos y bounding boxes.
+
+Sincronización de Flujos: Dominio del flujo secuencial de renderizado de frames para eliminar latencias visuales o "pintados fantasmas".
+
+Conceptos en Proceso de Asimilación (Puntos de Fricción Históricos)
+Ciclo de vida de elementos de la UI: Tendencia inicial a acoplar elementos de control interactivos (Trackbars) a ventanas lógicas que la GPU aún no ha inicializado en memoria (corregido mediante el uso estricto de cv2.namedWindow previo al bucle).
+
+Jerarquía y Ámbito de Variables Cíclicas: Dificultad para gestionar dónde nacen, mutan y mueren las variables dentro de un flujo continuo while True. Tendencia a declarar estados que deben ser instantáneos (como contadores a cero por frame) fuera del bucle principal o condicionados a bloques de ejecución espaciados (como el bloque de guardado cada 30 frames), provocando acumulaciones infinitas o lecturas congeladas.
+
+Pureza de Datos en Persistencia: Tendencia a enviar strings formateados de la interfaz de usuario o estructuras complejas (matrices completas numpy.ndarray) a los métodos de almacenamiento histórico, en lugar de transferir exclusivamente los tipos de datos primitivos (enteros/floats) extraídos directamente de la lógica de negocio.
+
+4. ESTADO EXACTO Y SIGUIENTE PASO INMEDIATO
+Situación actual: Hemos finalizado por completo el Módulo 5 (HMI, Métricas y Persistencia de Producción). El sistema es robusto, calcula métricas instantáneas limpias en cada frame y vuelca datos estructurados sin corrupciones al archivo CSV de forma síncrona.
+
+Siguiente paso formativo inmediato: Iniciar el Módulo 6: Especialización Avanzada, enfocado en tres objetivos integrados:
+
+Punto 6.1 (Filtro de Forma): Estudiar el concepto teórico de la Relación de Aspecto (Aspect Ratio) dividiendo las dimensiones del bounding box (w / h) para discriminar objetos deformados o aplastados que escapan al control de área clásica, aplicando tolerancias de inspección industriales (rango de 0.8 a 1.2).
+
+Punto 6.2 (Máquina de Estados de Conteo Histórico): Diseñar una lógica de tracking para contar piezas de forma acumulada cuando cruzan una línea virtual, evitando la duplicación por frame.
+
+Punto 6.3 (Refactorización): Trasladar y encapsular toda la lógica de binarización y dibujo del script principal hacia los servicios correspondientes para dejar el sistema preparado para arquitecturas multihilo avanzadas.

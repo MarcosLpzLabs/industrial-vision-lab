@@ -164,7 +164,12 @@ if __name__ == "__main__":
         if cnt == 0:
             sufix = datetime.now().strftime("%Y%m%d_%H%M%S")
             print("Guardando frame en storage...")
-            storage.save_frame(frame, f"frame_{sufix}.jpg")
+            file_name = f"frame_{sufix}.jpg"
+            storage.save_frame(frame, file_name)
+
+            print("Guard<ndo métricas...")
+            storage.registrar_metricas(file_name,umbral_area,text_cnt_ok,text_cnt_nok)
+
             print("Frame guardado en storage.")
             cnt = 30  # Reset the counter
             
