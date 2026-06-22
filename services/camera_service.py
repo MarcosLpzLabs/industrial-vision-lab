@@ -2,6 +2,9 @@ import cv2
 import logging
 import numpy
 
+# inicializar el logger específico para este archivo
+logger = logging.getLogger(__name__)
+
 
 class CameraConectionError(Exception):
     """Excepción personalizada para errores de conexión de la cámara."""
@@ -20,7 +23,7 @@ class CameraService:
                 self.camera = cv2.VideoCapture(idx)
                 if self.camera.isOpened():
                     self.camera_index = idx
-                    logging.info(f"Cámara abierta en índice {idx}")
+                    logger.info(f"Cámara abierta en índice {idx}")
                     break
                 self.camera.release()
 
