@@ -50,7 +50,7 @@ class TrackingService:
 
         # Intentar emparejar los objetos existentes con los más cercanos actuales
         for obj_id, obj in self.tracked_objects.items():
-            min_dist = float("inf") # infinito positivo, se usa para comparar, nunca un valor va a ser mayor qeu infinito
+            min_dist = float("inf") # infinito positivo, se usa para comparar, nunca un valor va a ser mayor que infinito
             best_idx = None
 
             for idx, centroid in enumerate(current_centroids):

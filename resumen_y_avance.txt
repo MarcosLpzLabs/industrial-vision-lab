@@ -1,0 +1,82 @@
+Resumen técnico y de avance del proyecto Industrial Vision Lab
+
+1. Objetivo del proyecto y tecnologías en uso
+
+- Objetivo general: construir una solución de visión artificial industrial reutilizable y robusta que pueda servir de base para futuros proyectos. El enfoque es aprender construyendo, con una arquitectura modular que permita evolucionar hacia inspección en planta.
+- Tecnologías actuales: Python 3, OpenCV (cv2), NumPy, logging, datetime, persistencia plana en CSV y archivos JPG.
+- Entorno de desarrollo: Linux (Arch/CachyOS) y VS Code.
+
+2. Estructura actual del código
+
+- apps/
+  - camera_info.py: script principal de aplicación que controla el bucle de captura, aplica ROI y procesamiento, dibuja HMI y guarda métricas cada 30 frames.
+  - test_camera.py: script de prueba simple que abre la cámara y muestra vídeo en una ventana.
+
+- services/
+  - camera_service.py: clase CameraService que encapsula la apertura de cámara, lectura de frames, cálculo/visualización de información y funciones de procesamiento de imagen:
+    - roi_matrix
+    - show_roi
+    - roi_to_gray
+    - noise_filter
+    - threshold_roi
+    - adaptive_threshold_roi
+    - morph_clean
+    - detect_edges
+    - find_and_filter_contours
+    - bounding_box
+    - area_of_contour
+    - release
+  - storage_service.py: clase StorageService con métodos:
+    - save_frame(frame, filename)
+    - save_log(log_data, filename) [pendiente]
+    - registrar_metricas(nombre_frame, umbral, ok, nok, aspect_ratio)
+  - inspection.py: clase InspectionService con lógica de filtro de forma basada en aspect ratio:
+    - calculate_aspect_ratio(contour)
+    - is_valid_shape(aspect_ratio)
+  - tracking.py: clase TrackingService con lógica de conteo histórico y seguimiento de centroides cruzando una línea virtual.
+
+- packages/exports:
+  - services/__init__.py exporta CameraService, StorageService, CameraConectionError, InspectionService, TrackingService y TrackedObject.
+
+3. Qué se ha implementado hasta ahora
+
+- Conexión de cámara robusta con rescate automático de índices 0-4 cuando falla el índice inicial.
+- Captura de frames y lectura de FPS.
+- Cálculo y recorte de una ROI definida manualmente.
+- Pipeline de procesamiento clásico sobre ROI:
+  - conversión a gris
+  - filtrado de ruido por mediana
+  - umbralización fija y adaptativa
+  - limpieza morfológica (opening + closing)
+  - detección de bordes (Canny)
+  - extracción y filtrado de contornos por área
+- Dibujo de resultados en la interfaz:
+  - rectángulo de ROI
+  - contornos y bounding boxes
+  - texto con piezas OK/NOK y umbral de área
+- Cálculo de métricas de aspect ratio con tolerancias industriales (0.8 a 1.2).
+- Persistencia local de producción:
+  - guardado de imágenes JPG en datasets/
+  - registro en CSV con cabecera dinámica y filas de métricas.
+- Se ha desarrollado un servicio de tracking para conteo histórico con línea virtual y estado de objetos, aunque actualmente no está integrado en el script principal de `camera_info.py`.
+
+4. Qué queda por hacer
+
+- Integrar el `TrackingService` en el flujo de `camera_info.py` para contar piezas de forma acumulada cuando crucen la línea virtual y evitar duplicados por frame.
+- Refactorizar para mover la lógica de binarización y de dibujo fuera del script principal y dentro de servicios dedicados, preparando el código para arquitecturas multihilo.
+- Mejorar la pureza de datos en `StorageService.registrar_metricas` para guardar valores primitivos reales en lugar de cadenas de texto formateadas de la UI.
+- Implementar el método `save_log` en `StorageService` si se desea persistencia de logs adicionales.
+- Revisar el uso de `cv2.waitKey` y ventanas para asegurar que la UI se gestiona de forma limpia y no se acoplan estados fuera del bucle principal.
+- Posible refactorización adicional: separar responsabilidades de `CameraService` para que no mezcle la visualización de información con la captura de frames.
+
+5. Estado de avance en el índice de contenidos
+
+- El proyecto se encuentra dentro de la fase de arquitectura y Python profesional, con el foco actual en modularización, servicios y refactorización.
+- En los documentos de contexto adicionales, se describe que el Módulo 5 (HMI, métricas y persistencia de producción) está completado y que el siguiente paso inmediato es iniciar el Módulo 6 de Especialización Avanzada.
+- Por tanto, en el índice de contenido actual estamos en:
+  - Fase 1: Python profesional / Refactorización completa de Industrial Vision Lab
+  - Con el progreso específico situado al final del bloque de HMI y persistencia, y el próximo objetivo en la transición hacia el siguiente bloque avanzado de inspección y tracking.
+
+6. Conclusión breve
+
+El proyecto tiene una base sólida de captura y procesamiento de imagen, con servicios claramente definidos y métricas registradas. La pieza faltante es la integración del tracking histórico y la refactorización final para avanzar hacia una arquitectura más limpia y preparada para multihilo.

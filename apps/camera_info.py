@@ -1,4 +1,4 @@
-from services import CameraService, StorageService, CameraConectionError, InspectionService
+from services import CameraService, StorageService, CameraConectionError, InspectionService, TrackingService
 import cv2
 from datetime import datetime
 import logging
@@ -21,14 +21,17 @@ if __name__ == "__main__":
 
     piezas_ok_en_frame = 0
     piezas_nok_en_frame = 0
+    total_tracking_count = 0
     text_cnt_ok = f"Piezas OK: {piezas_ok_en_frame}"
     text_cnt_nok = f"Piezas NOK: {piezas_nok_en_frame}"
+    text_cnt_tracking = f"Objetos Rastreados: {total_tracking_count}"
     
     try:
         # Los servicios siempre se instancian fuera del loop principal para evitar problemas de rendimiento  
         servicio = CameraService()
         storage = StorageService(f"datasets/")
         inspection = InspectionService() # defect InspectionService(0.8,1.2)
+        tracking = TrackingService(line_y=225) # defect TrackingService(max_distance=50, max_disappeared=5)
         cv2.namedWindow("Camera Info")
         cv2.createTrackbar("Umbral Area", "Camera Info", 5000, 10000, servicio.callback_function) 
 
@@ -45,6 +48,8 @@ if __name__ == "__main__":
         # Reset de contadores de piezas por frame
         piezas_ok_en_frame = 0
         piezas_nok_en_frame = 0
+        centroid_list = []
+        
 
         ar_in_frame = []
         mean_ar = 0.0
@@ -90,6 +95,14 @@ if __name__ == "__main__":
                 # Cálculo del bounding box de cada contorno válido y dibujamos un rectángulo alrededor de cada uno
                 for contour in valid_contours:
                     x, y, w, h = cv2.boundingRect(contour)
+                    M = cv2.moments(contour)
+                    if M["m00"] != 0:
+                        cx = int(M["m10"] / M["m00"])
+                        cy = int(M["m01"] / M["m00"])
+                        global_cx = roi_x + cx
+                        global_cy = roi_y + cy
+                        centroid_list.append((global_cx, global_cy))
+                    
                     cv2.rectangle(roi, (x, y), (x + w, y + h), (0, 0, 255), 2)
                     
                     # Cálculo del área de cada contorno válido
@@ -114,8 +127,6 @@ if __name__ == "__main__":
                         text_warning = "Objeto OK"
                         piezas_ok_en_frame += 1 
                         
-                    global_x = roi_x + x
-                    global_y = roi_y + y
                     
                     cv2.putText(roi, 
                                 text_warning, 
@@ -124,16 +135,19 @@ if __name__ == "__main__":
                                 0.5, 
                                 text_color, 
                                 1)
+                
                 servicio.show_roi(roi) 
+            total_tracking_count = tracking.update(centroid_list)
 
         # Actualizamos las cadenas de texto con los totales reales del frame procesado
         text_cnt_ok = f"Piezas OK: {piezas_ok_en_frame}"
         text_cnt_nok = f"Piezas NOK: {piezas_nok_en_frame}"
-
+        text_cnt_tracking = f"Objetos Rastreados: {total_tracking_count}"
         # Pintamos los textos siempre actualizados en el panel principal
         cv2.putText(frame, text_cnt_nok, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2, cv2.LINE_AA) # type: ignore
         cv2.putText(frame, text_cnt_ok, (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2, cv2.LINE_AA) # type: ignore
-
+        cv2.putText(frame, text_cnt_tracking, (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2, cv2.LINE_AA) # type: ignore
+        cv2.line(frame, (200, tracking.line_y), (500, tracking.line_y), (255, 255, 0), 2) # type: ignore
         # 5. Mostramos las ventanas
         cv2.imshow("Camera Info", frame) # type: ignore
 
