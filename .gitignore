@@ -10,3 +10,4 @@ graphify-out/cost.json
 .opencode/node_modules/
 graphify-out/cache/
 graphify-out/.graphify_python
+datasets/

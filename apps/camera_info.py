@@ -52,8 +52,8 @@ if __name__ == "__main__":
         
 
         ar_in_frame = []
-        mean_ar = 0.0
-        worst_ar = 1.0
+        mean_ar = None
+        worst_ar = None
 
         # 1. Extraemos la ROI usando el nuevo método limpio (sin pasarle el frame)
         roi = servicio.roi_matrix(roi_x, roi_y, roi_x + 300, roi_y + 250)
@@ -62,7 +62,7 @@ if __name__ == "__main__":
         cv2.rectangle(frame, (roi_x, roi_y), (roi_x + 300, roi_y + 250), (255, 0, 0), 2) # type: ignore
 
         # 3. Obtenemos el valor del umbral de área desde el trackbar
-        umbral_area = cv2.getTrackbarPos("Umbral Area", "Camera Info") # type: ignore
+        umbral_area = cv2.getTrackbarPos("Umbral Area", "Camera Info") # type: ignore type-> int
         area_text = f"Umbral Area: {umbral_area}"
         cv2.putText(frame, area_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2, cv2.LINE_AA) # type: ignore
 
@@ -113,7 +113,7 @@ if __name__ == "__main__":
                         ar_in_frame.append(ar)
 
                         # LÓGICA WORST CASE: El que tenga mayor desviación absoluta respecto a 1.0
-                        if abs(ar - 1.0) > abs(worst_ar - 1.0):
+                        if abs(ar - 1.0) > abs(worst_ar - 1.0 if worst_ar is not None else 0):
                             worst_ar = ar
 
                     is_valid_ar = inspection.is_valid_shape(ar)
@@ -157,8 +157,8 @@ if __name__ == "__main__":
         if ar_in_frame:
             mean_ar = sum(ar_in_frame) / len(ar_in_frame)
         else:
-            mean_ar = 0.0
-            worst_ar = 1.0
+            mean_ar = None  # No hay piezas, por lo que no hay promedio de relación de aspecto
+            worst_ar = None  # No hay piezas, por lo que no hay peor relación de aspecto
 
         if cnt == 0:
             sufix = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -169,13 +169,13 @@ if __name__ == "__main__":
             print("Guardando métricas...")
             storage.registrar_metricas(nombre_frame=file_name,
                                     umbral=umbral_area,
-                                    ok=text_cnt_ok,
-                                    nok=text_cnt_nok,
-                                    aspect_ratio=round(mean_ar, 2))
+                                    ok=piezas_ok_en_frame,
+                                    nok=piezas_nok_en_frame,
+                                    aspect_ratio=round(mean_ar, 2) if mean_ar is not None else None,
+                                    worst_ar=round(worst_ar, 2) if worst_ar is not None else None)
 
             print("Frame guardado en storage.")
             cnt = 30  # Reset the counter
-            
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
