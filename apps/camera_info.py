@@ -74,7 +74,7 @@ if __name__ == "__main__":
             filtered_roi = servicio.noise_filter(grey_roi)
 
             # Threshold
-            threshold_roi = servicio.threshold_roi(filtered_roi)
+            #threshold_roi = servicio.threshold_roi(filtered_roi)
 
             # Adaptive threshold
             adaptative_roi = servicio.adaptive_threshold_roi(filtered_roi)
@@ -84,13 +84,16 @@ if __name__ == "__main__":
 
             # Edge detection
             edges = servicio.detect_edges(morph_cleaned)
-            cv2.imshow("ROI Edge Detection", edges) # type: ignore
+            #cv2.imshow("ROI Edge Detection", edges) # type: ignore
 
             # Buscamos los contornos válidos dentro de la ROI
             valid_contours = servicio.find_and_filter_contours(edges, min_area=400)
+
+            contorno_desplazado = [contorno + [roi_x, roi_y] for contorno in valid_contours]# Desplazamos el contorno a las coordenadas globales del frame
             
             if len(valid_contours) > 0:
-                cv2.drawContours(roi, valid_contours, -1, (0, 255, 0), 2)
+                cv2.drawContours(frame, contorno_desplazado, -1, (0, 255, 0), 2) # dibujamos todos los contornos  
+                                                                        #válidos en el frame original para el operario
 
                 # Cálculo del bounding box de cada contorno válido y dibujamos un rectángulo alrededor de cada uno
                 for contour in valid_contours:
@@ -100,10 +103,10 @@ if __name__ == "__main__":
                         cx = int(M["m10"] / M["m00"])
                         cy = int(M["m01"] / M["m00"])
                         global_cx = roi_x + cx
-                        global_cy = roi_y + cy
+                        global_cy = roi_y + cy  
                         centroid_list.append((global_cx, global_cy))
                     
-                    cv2.rectangle(roi, (x, y), (x + w, y + h), (0, 0, 255), 2)
+                    cv2.rectangle(frame,  (roi_x + x, roi_y + y), (roi_x + x + w, roi_y + y + h), (0, 0, 255), 2)
                     
                     # Cálculo del área de cada contorno válido
                     area = cv2.contourArea(contour)
@@ -128,15 +131,15 @@ if __name__ == "__main__":
                         piezas_ok_en_frame += 1 
                         
                     
-                    cv2.putText(roi, 
+                    cv2.putText(frame, 
                                 text_warning, 
-                                (x, y-5), 
+                                (roi_x + x, roi_y + y - 5), 
                                 cv2.FONT_HERSHEY_SIMPLEX, 
                                 0.5, 
                                 text_color, 
                                 1)
                 
-                servicio.show_roi(roi) 
+                #servicio.show_roi(roi) 
             total_tracking_count = tracking.update(centroid_list)
 
         # Actualizamos las cadenas de texto con los totales reales del frame procesado

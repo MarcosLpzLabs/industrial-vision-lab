@@ -1,4 +1,4 @@
-# Industrial Vision Lab
+/# Industrial Vision Lab
 
 Sistema educativo de **visión artificial industrial** que simula una celda de inspección automatizada en planta. No es un tutorial más de programación: es un **curso práctico de ingeniería de software** construido con el método "aprender construyendo", en el que cada línea de código responde a un problema real de automatización industrial.
 

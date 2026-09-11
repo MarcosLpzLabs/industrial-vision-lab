@@ -33,6 +33,7 @@ El alumno cuenta con un trasfondo técnico de gran valor para la asimilación de
 El plan de estudios abarca un abanico completo de tecnologías modernas indispensables para el Ingeniero de Sistemas Inteligentes Industriales [1]:
 
 * **Lenguaje Principal:** Python 3 [2, 23].
+* **Entorno de Ejecución del Laboratorio:** Entorno virtual `.venv` recreado con Python 3.14.7, NumPy 2.5.2 y OpenCV-Python 5.0.0; la aplicación se lanza desde la raíz del repositorio con `.venv/bin/python -m apps.camera_info` [32].
 * **Sistema de Desarrollo:** Linux clásico con la distribución Arch-Linux (CachyOS) bajo el entorno gráfico KDE, empleando nativamente Visual Studio Code como entorno de desarrollo unificado [3, 23].
 * **Control de Versiones:** Git y la plataforma GitHub [2].
 * **Visión Artificial y Procesamiento Digital:** OpenCV (`cv2`) y manipulación avanzada de matrices con NumPy [2, 23].
@@ -81,7 +82,7 @@ industrial-vision-lab/
    * `detect_edges`: Detección clásica de bordes mediante algoritmo de Canny [24, 32].
    * `find_and_filter_contours`: Búsqueda de contornos cerrados y filtrado selectivo según su área superficial en píxeles [24, 32].
    * `bounding_box` y `area_of_contour`: Extracción geométrica de las cajas envolventes y superficies dimensionales del objeto detectado [32].
-   * `show_roi` y `release`: Métodos para habilitar ventanas de depuración rápidas y liberación segura de los recursos del sensor físico [32].
+   * `show_roi` y `release`: Métodos originales para habilitar ventanas de depuración rápidas y liberación segura de los recursos del sensor físico [32]. *Nota de aplicación:* con la regla de oro de renderizado, las ventanas de depuración dejaron de usarse en el flujo de producción, concentrándose la visualización en un único `cv2.imshow` al final del ciclo [32].
 
 2. **`StorageService` (`services/storage_service.py`):**
    Gestiona de manera centralizada toda la persistencia de datos en disco duro local de la estación de trabajo, impidiendo que los scripts lógicos manejen rutas directamente [25].
@@ -96,7 +97,7 @@ industrial-vision-lab/
    Implementa un algoritmo de seguimiento de centroides de piezas combinando su máquina de estados lógica [30, 32]. Su función principal consiste en registrar de forma única cada pieza que cruce una línea virtual de activación definida espacialmente dentro del frame, acumulando el contador histórico general sin incurrir en duplicaciones de contaje de una misma pieza a lo largo de múltiples frames continuos [30, 32].
 
 5. **`apps/camera_info.py` (Script de Aplicación Principal):**
-   Constituye el núcleo lógico de ejecución cíclica continua (`while True`) del sistema de visión artificial [25, 32]. Es la capa de coordinación encargada de instanciar y conectar de manera síncrona las capas de servicios independientes (`CameraService` y `StorageService`) [25]. Se encarga de procesar las matrices en memoria, orquestar la UI que ve el operador e indicar las llamadas de dibujado sobre el frame [25]. Asimismo, monitoriza el tiempo del sistema para coordinar la frecuencia de persistencia de métricas [25, 32].
+   Constituye el núcleo lógico de ejecución cíclica continua (`while True`) del sistema de visión artificial [25, 32]. Es la capa de coordinación encargada de instanciar y conectar de manera síncrona las capas de servicios independientes (`CameraService` y `StorageService`) [25]. Se encarga de procesar las matrices en memoria, orquestar la UI que ve el operador e indicar las llamadas de dibujado sobre el frame [25]. El dibujado (contornos, bounding boxes y texto OK/NOK) se traslada desde la matriz ROI hacia el frame completo aplicando el offset (roi_x, roi_y) mediante broadcasting de NumPy [32]. Asimismo, monitoriza el tiempo del sistema para coordinar la frecuencia de persistencia de métricas [25, 32]. *Pendiente:* extraer la lógica de dibujado a un servicio dedicado (`RendererService`/HMI), dejando este script como orquestador fino preparado para multihilo [31, 32].
 
 6. **`apps/test_camera.py` (Script de Verificación Rápida):**
    Un script mínimo de comprobación cuya única tarea es abrir una conexión directa con el índice de cámara especificado, desplegar el vídeo nativo en crudo en una ventana flotante básica y controlar la salida limpia del hilo tras la lectura del teclado con la tecla 'Q' [7, 32].
@@ -110,6 +111,7 @@ El desarrollo del software se rige bajo estrictos principios físicos y metodolo
 * **Tolerancia del Aspect Ratio:** El sistema de inspección de forma discrimina piezas defectuosas o aplastadas evaluando la Relación de Aspecto (Aspect Ratio, $w/h$) del objeto detectado [30]. Se establece un rango de tolerancia industrial estricto de **0.8 a 1.2** [30]. Si la relación geométrica escapa de estos límites, el objeto es automáticamente calificado como pieza defectuosa (NOK) [30].
 * **Ciclo de Persistencia de Producción:** El script de aplicación principal monitoriza los ciclos y vuelca los datos al histórico de producción síncrona en CSV exactamente **cada 30 frames** [25, 32]. Esto previene sobrecargar de peticiones de Entrada/Salida síncronas al procesador y disco en cada iteración individual de imagen, optimizando el rendimiento de la CPU del sistema [25].
 * **Regla de Oro de Renderizado Industrial:** Primero se ejecutan todas las operaciones matemáticas y de lógica de negocio sobre las matrices de NumPy en memoria y, posteriormente, se dibujan todas las anotaciones HMI, rectángulos de ROI, bounding boxes de piezas y textos informativos en el búfer local [25, 27]. Solo al concluir todas las operaciones del frame, se llama una única vez en el ciclo al método `cv2.imshow` para renderizar visualmente el resultado, eliminando por completo cualquier tipo de latencia visual o "pintado fantasma" parpadeante [25, 27].
+* **Nota de aplicación:** Esta regla se materializó reduciendo tres ventanas `cv2.imshow` simultáneas (`ROI Edge Detection`, `ROI` y `Camera Info`) a un único `cv2.imshow("Camera Info", frame)` al final del ciclo, y trasladando el dibujado de la matriz ROI al frame completo mediante el offset (roi_x, roi_y) [32].
 * **Regla del Constructor de Clase:** El método constructor (`__init__`) de un servicio o componente debe limitarse estrictamente a tareas de inicialización de atributos de memoria, parametrización inicial de clases y almacenamiento de objetos de configuración [10]. Bajo ningún concepto un constructor debe abrir interfaces gráficas, iniciar flujos de adquisición continuos o invocar bucles de control infinitos `while True`, ya que esto viola el aislamiento de instanciación e impide probar o instanciar el servicio con seguridad [10].
 
 ---
@@ -129,3 +131,7 @@ Durante el desarrollo del laboratorio de software `industrial-vision-lab`, se pr
 ### C) Excepción "ModuleNotFoundError: No module named 'services'"
 * **Causa:** El script se ejecutaba mediante el comando directo de consola `python apps/camera_info.py` estando posicionados dentro de la raíz del proyecto [8, 9]. Python tomaba automáticamente la carpeta `apps/` como el directorio raíz de búsqueda del sistema (el primer elemento en `sys.path`), lo que le impedía localizar e importar el paquete de software de `services/` ubicado en el nivel superior del proyecto [9].
 * **Solución:** Asegurar la correcta resolución mediante la colocación de archivos de inicialización vacíos `__init__.py` tanto en el directorio `apps/` como en el de `services/` [9]. Posteriormente, ejecutar la aplicación principal desde el directorio raíz del repositorio empleando la llamada estructurada como módulo: `python -m apps.camera_info` [9].
+
+### D) Múltiples ventanas de renderizado simultáneas (violación de la regla de oro)
+* **Causa:** La aplicación desplegaba simultáneamente tres ventanas `cv2.imshow` activas —`ROI Edge Detection`, `ROI` (vía `show_roi`) y `Camera Info`—, violando la regla de oro de renderizado y generando latencia y ventanas de depuración innecesarias en el flujo de producción [32].
+* **Solución:** Eliminar las ventanas de depuración y concentrar el renderizado en un único `cv2.imshow("Camera Info", frame)` al final del ciclo, trasladando el dibujado de la matriz ROI recortada al frame completo mediante el offset (roi_x, roi_y) con broadcasting de NumPy [32].

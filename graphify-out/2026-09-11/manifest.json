@@ -1,0 +1,176 @@
+{
+  ".opencode/opencode.json": {
+    "mtime": 1786804276.5846753,
+    "seen": 1786804566.851366,
+    "ast_hash": "abcc8b9dcd80bca5f9dde6d9f0c3ae79",
+    "semantic_hash": "abcc8b9dcd80bca5f9dde6d9f0c3ae79"
+  },
+  ".opencode/plugins/graphify.js": {
+    "mtime": 1786804276.5845332,
+    "seen": 1786804566.851369,
+    "ast_hash": "3ea725724bc8ebe483c9f13d6aa1124f",
+    "semantic_hash": "3ea725724bc8ebe483c9f13d6aa1124f"
+  },
+  "apps/__init__.py": {
+    "mtime": 1780743366.4831927,
+    "seen": 1786804566.8513703,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "apps/camera_info.py": {
+    "mtime": 1782161743.4048648,
+    "seen": 1786804566.8513713,
+    "ast_hash": "1fe1fce46a14ce24c6b37b11246f6b8f",
+    "semantic_hash": "1fe1fce46a14ce24c6b37b11246f6b8f"
+  },
+  "apps/test_camera.py": {
+    "mtime": 1780516107.7285833,
+    "seen": 1786804566.8513722,
+    "ast_hash": "b293513cdb8b1bba8ce9db9344985a28",
+    "semantic_hash": "b293513cdb8b1bba8ce9db9344985a28"
+  },
+  "opencode.json": {
+    "mtime": 1786794570.210747,
+    "seen": 1786804566.851373,
+    "ast_hash": "370f3f2da75cf38ced042e2783295454",
+    "semantic_hash": "370f3f2da75cf38ced042e2783295454"
+  },
+  "services/__init__.py": {
+    "mtime": 1782322799.12388,
+    "seen": 1786804566.8513744,
+    "ast_hash": "b9add09c98b66927cf64f0f9c70ba91d",
+    "semantic_hash": "b9add09c98b66927cf64f0f9c70ba91d"
+  },
+  "services/camera_service.py": {
+    "mtime": 1782157744.764646,
+    "seen": 1786804566.851382,
+    "ast_hash": "c0049673d7655b7865ca0c5cbf68ed0e",
+    "semantic_hash": "c0049673d7655b7865ca0c5cbf68ed0e"
+  },
+  "services/inspection.py": {
+    "mtime": 1782158907.9183848,
+    "seen": 1786804566.8513842,
+    "ast_hash": "ba189aa55ed12b51a1c8ee4592c7a671",
+    "semantic_hash": "ba189aa55ed12b51a1c8ee4592c7a671"
+  },
+  "services/storage_service.py": {
+    "mtime": 1782160137.2187366,
+    "seen": 1786804566.8513849,
+    "ast_hash": "ef218b7b6f45e0d57b2f6e9dbcd921c4",
+    "semantic_hash": "ef218b7b6f45e0d57b2f6e9dbcd921c4"
+  },
+  "services/tracking.py": {
+    "mtime": 1782333461.101692,
+    "seen": 1786804566.8513858,
+    "ast_hash": "7abd8efc6152d64ff054e47bc16ebc8d",
+    "semantic_hash": "7abd8efc6152d64ff054e47bc16ebc8d"
+  },
+  ".opencode/agents/sumary.md": {
+    "mtime": 1786802023.6227524,
+    "seen": 1786804566.8513865,
+    "ast_hash": "c1dd7ccee319da2ea340a3d014e0e8d7",
+    "semantic_hash": "c1dd7ccee319da2ea340a3d014e0e8d7"
+  },
+  ".opencode/agents/teacher.md": {
+    "mtime": 1786802004.5206861,
+    "seen": 1786804566.8513877,
+    "ast_hash": "50de65ea559a59fabfb01139f99a2c90",
+    "semantic_hash": "50de65ea559a59fabfb01139f99a2c90"
+  },
+  ".opencode/skills/graphify/SKILL.md": {
+    "mtime": 1786804276.583534,
+    "seen": 1786804566.8513885,
+    "ast_hash": "61843fdfaa85156f506caba13881a35a",
+    "semantic_hash": "61843fdfaa85156f506caba13881a35a"
+  },
+  ".opencode/skills/graphify/references/add-watch.md": {
+    "mtime": 1783974114.5519104,
+    "seen": 1786804566.851389,
+    "ast_hash": "d59d027fe449f06aa03905a01184e779",
+    "semantic_hash": "d59d027fe449f06aa03905a01184e779"
+  },
+  ".opencode/skills/graphify/references/exports.md": {
+    "mtime": 1783974114.5519104,
+    "seen": 1786804566.8513896,
+    "ast_hash": "9da2a2152e60a22f07f05fed5158f287",
+    "semantic_hash": "9da2a2152e60a22f07f05fed5158f287"
+  },
+  ".opencode/skills/graphify/references/extraction-spec.md": {
+    "mtime": 1783974114.5519104,
+    "seen": 1786804566.8513904,
+    "ast_hash": "42fef56a01698118f7fd722acdadea34",
+    "semantic_hash": "42fef56a01698118f7fd722acdadea34"
+  },
+  ".opencode/skills/graphify/references/github-and-merge.md": {
+    "mtime": 1783974114.5519104,
+    "seen": 1786804566.851391,
+    "ast_hash": "cde13df085e4c492aeb7ba298a996d0d",
+    "semantic_hash": "cde13df085e4c492aeb7ba298a996d0d"
+  },
+  ".opencode/skills/graphify/references/hooks.md": {
+    "mtime": 1783974114.5519104,
+    "seen": 1786804566.8513918,
+    "ast_hash": "3f545db6ce646650bb9de588f5512a27",
+    "semantic_hash": "3f545db6ce646650bb9de588f5512a27"
+  },
+  ".opencode/skills/graphify/references/query.md": {
+    "mtime": 1783974114.5519104,
+    "seen": 1786804566.8513925,
+    "ast_hash": "3c46f8ad006874260614ed8657d02307",
+    "semantic_hash": "3c46f8ad006874260614ed8657d02307"
+  },
+  ".opencode/skills/graphify/references/transcribe.md": {
+    "mtime": 1783974114.5519104,
+    "seen": 1786804566.8513932,
+    "ast_hash": "67b6a5fa6c0974e18f60db9f8932fbd8",
+    "semantic_hash": "67b6a5fa6c0974e18f60db9f8932fbd8"
+  },
+  ".opencode/skills/graphify/references/update.md": {
+    "mtime": 1783974114.5519104,
+    "seen": 1786804566.851394,
+    "ast_hash": "c698309979460d0f02ba616417844399",
+    "semantic_hash": "c698309979460d0f02ba616417844399"
+  },
+  "AGENTS.md": {
+    "mtime": 1786804276.5843341,
+    "seen": 1786804566.8513951,
+    "ast_hash": "9d00a30d63551a3b92aecdd4b1ab5d0f",
+    "semantic_hash": "9d00a30d63551a3b92aecdd4b1ab5d0f"
+  },
+  "README.md": {
+    "mtime": 1780259715.9042058,
+    "seen": 1786804566.8513958,
+    "ast_hash": "de056aa65d1cbda8332f681db83bbc6a",
+    "semantic_hash": "de056aa65d1cbda8332f681db83bbc6a"
+  },
+  "Sacar contexto.txt": {
+    "mtime": 1780767033.8424795,
+    "seen": 1786804566.8513963,
+    "ast_hash": "c1e7ae7ae869b05bd10d7f6a393edd65",
+    "semantic_hash": "c1e7ae7ae869b05bd10d7f6a393edd65"
+  },
+  "avance.md": {
+    "mtime": 1786733353.2787533,
+    "seen": 1786804566.851397,
+    "ast_hash": "f701594226774234a41e71179bd000ab",
+    "semantic_hash": "f701594226774234a41e71179bd000ab"
+  },
+  "general_context.md": {
+    "mtime": 1786733361.590814,
+    "seen": 1786804566.851398,
+    "ast_hash": "edba75f6676da7fec788b5a5eee1a2fb",
+    "semantic_hash": "edba75f6676da7fec788b5a5eee1a2fb"
+  },
+  "indice.md": {
+    "mtime": 1786733342.4356713,
+    "seen": 1786804566.8513985,
+    "ast_hash": "25032175d38f3144955b61a58ae3fb31",
+    "semantic_hash": "25032175d38f3144955b61a58ae3fb31"
+  },
+  "resumen_y_avance.txt": {
+    "mtime": 1786201942.1778061,
+    "seen": 1786804566.8513992,
+    "ast_hash": "cf111b6df58d7899d717ca052bd2cfc2",
+    "semantic_hash": "cf111b6df58d7899d717ca052bd2cfc2"
+  }
+}
