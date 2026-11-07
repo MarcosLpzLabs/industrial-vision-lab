@@ -5,7 +5,7 @@ color: warning
 permission:
   edit: allow
   read: allow
-  bash: ask
+  bash: allow
   skill: allow
 ---
 

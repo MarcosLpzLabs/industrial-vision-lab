@@ -1,15 +1,1 @@
-{
-  "0": "CameraService",
-  "1": "TrackingService",
-  "2": "permission",
-  "3": "graphify skill (/graphify pipeline)",
-  "4": "Módulo 6: especialización avanzada (filtro de forma, conteo, refactor) — en proceso",
-  "5": "services/__init__.py",
-  "6": "StorageService",
-  "7": "graphify.js",
-  "8": "apps/__init__.py",
-  "9": "test_camera.py",
-  "10": "Constructores limpios (__init__ solo inicializa atributos, sin I/O ni bucles)",
-  "11": "Regla de oro de renderizado (matrices primero, un único cv2.imshow al final)",
-  "12": ".opencode/opencode.json"
-}
+{"0": "Contexto del curso y persistencia", "1": "CameraService y pipeline PDI", "2": "RenderService y paquete services", "3": "Configuración OpenCode", "4": "Renderizado y refactor 6.3", "5": "Agentes Teacher y Sumary", "6": "Referencias graphify", "7": "Tracking de piezas", "8": "Arquitectura y proyecto", "9": "Inspección de forma", "10": "Persistencia de producción", "11": "Plugin graphify", "12": "Esquema OpenCode", "13": "Resúmenes de contexto", "14": "Excepción de cámara", "15": "Paquete apps", "16": "Test de cámara", "17": "Fase 1 Python", "18": "Fase 2 Computer Vision"}

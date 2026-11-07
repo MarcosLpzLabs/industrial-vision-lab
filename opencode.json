@@ -1,6 +1,9 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "default_agent": "teacher",
+  "skills": {
+    "paths": [".agents/skills"]
+  },
   "agent": {
     "teacher": {
       "description": "Profesor-mentor del curso de visión artificial industrial.",
@@ -10,7 +13,7 @@
     "sumary": {
       "description": "Actualiza el contexto del curso y el grafo graphify.",
       "mode": "subagent",
-      "permission": { "read": "allow", "edit": "allow", "bash": "ask", "skill": "allow" }
+      "permission": { "read": "allow", "edit": "allow", "bash": "allow", "skill": "allow" }
     }
   }
 }

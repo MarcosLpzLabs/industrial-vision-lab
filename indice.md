@@ -27,7 +27,8 @@ Este índice de contenidos estructura la ruta formativa diseñada para adquirir 
 * **Proyecto Práctico Asociado:** Refactorización completa de `industrial-vision-lab` [16].
 * **Módulos Prácticos Relacionados:**
   * **Módulo 5 (Completado):** Aplicación práctica del diseño orientado a objetos y modularización a través de la creación de las capas de servicios independientes `CameraService` y `StorageService` [24, 25, 29].
-  * **Módulo 6 - Punto 6.3 (Pendiente de integración):** Refactorización para trasladar y encapsular la lógica de binarización y dibujo del script principal `camera_info.py` hacia los servicios dedicados, preparando el sistema para arquitecturas multihilo avanzadas [31, 32].
+  * **Módulo 6 - Puntos 6.1 y 6.2 (Completados e integrados):** Integración operativa de `InspectionService` (filtro de forma por aspect ratio) y `TrackingService` (conteo histórico por cruce de línea virtual) dentro del bucle principal [30, 32].
+  * **Módulo 6 - Punto 6.3 (Completado):** Refactorización que extrae la lógica de dibujado del script principal `camera_info.py` a un servicio dedicado (`RenderService`), dejando el orquestador preparado para arquitecturas multihilo avanzadas [31, 32].
 
 ### 1.1 Arquitectura Python [15]
 * **Contenido:** Organización avanzada del código mediante la creación de paquetes de software, resolución óptima de imports, modularización y creación de servicios independientes con responsabilidades claras [15, 26].
@@ -50,8 +51,8 @@ Este índice de contenidos estructura la ruta formativa diseñada para adquirir 
 * **Objetivo:** Dominar el procesamiento digital de imágenes clásico para fundamentar el análisis visual antes de integrar modelos de Inteligencia Artificial [16].
 * **Proyecto Práctico Asociado:** Toolkit reutilizable de visión industrial [16].
 * **Módulos Prácticos Relacionados:**
-  * **Módulo 6 - Punto 6.1 (Pendiente de integración):** Filtro de forma utilizando la Relación de Aspecto (Aspect Ratio) del bounding box de contornos para identificar piezas deformadas bajo tolerancias de inspección industriales de entre 0.8 y 1.2 [30].
-  * **Módulo 6 - Punto 6.2 (Pendiente de integración):** Diseño de un servicio de seguimiento (`TrackingService`) de centroides con máquina de estados para el conteo de piezas acumuladas al cruzar una línea virtual [30, 32].
+  * **Módulo 6 - Punto 6.1 (Completado e integrado):** Filtro de forma utilizando la Relación de Aspecto (Aspect Ratio) del bounding box de contornos para identificar piezas deformadas bajo tolerancias de inspección industriales de entre 0.8 y 1.2 [30].
+  * **Módulo 6 - Punto 6.2 (Completado e integrado):** Diseño e integración de un servicio de seguimiento (`TrackingService`) de centroides con máquina de estados para el conteo de piezas acumuladas al cruzar una línea virtual [30, 32].
 
 ### 2.1 OpenCV [16]
 * **Contenido:** Fundamentos de manipulación de matrices de imágenes, flujos de vídeo en tiempo real, conversión entre espacios de color y aplicación de filtros digitales de reducción de ruido [16].

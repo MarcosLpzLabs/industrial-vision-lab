@@ -1,4 +1,4 @@
-from services import CameraService, StorageService, CameraConectionError, InspectionService, TrackingService
+from services import CameraService, StorageService, CameraConectionError, InspectionService, TrackingService, RenderService,RenderablePiece
 import cv2
 from datetime import datetime
 import logging
@@ -11,36 +11,35 @@ if __name__ == "__main__":
         datefmt="%Y-%m-%d %H:%M:%S",
         handlers=[
             logging.StreamHandler(),                      # Para que se siga viendo en la terminal
-            logging.FileHandler("datasets/app_vision.log") # ¡Para que se guarde en un archivo de texto!
+            logging.FileHandler("datasets/app_vision.log") # Para que se guarde en un archivo de texto
         ]
     )
     cnt = 30
     roi_x = 200
     roi_y = 100
-    ar = None
 
     piezas_ok_en_frame = 0
     piezas_nok_en_frame = 0
     total_tracking_count = 0
-    text_cnt_ok = f"Piezas OK: {piezas_ok_en_frame}"
-    text_cnt_nok = f"Piezas NOK: {piezas_nok_en_frame}"
-    text_cnt_tracking = f"Objetos Rastreados: {total_tracking_count}"
     
     try:
         # Los servicios siempre se instancian fuera del loop principal para evitar problemas de rendimiento  
-        servicio = CameraService()
+        camera = CameraService()
+        camera.start_capture()
         storage = StorageService(f"datasets/")
+        storage.prepare_storage() # Preparamos el directorio de almacenamiento
         inspection = InspectionService() # defect InspectionService(0.8,1.2)
         tracking = TrackingService(line_y=225) # defect TrackingService(max_distance=50, max_disappeared=5)
+        render = RenderService() #ahora mismo coge valores por defecto, pero se puede pasar parámetros para cambiar colores y grosor de trazo
         cv2.namedWindow("Camera Info")
-        cv2.createTrackbar("Umbral Area", "Camera Info", 5000, 10000, servicio.callback_function) 
+        cv2.createTrackbar("Umbral Area", "Camera Info", 5000, 10000, camera.callback_function) 
 
     except CameraConectionError as exc:
         logging.error(f"Error de conexión de la cámara: {exc}")
         raise SystemExit(1)
 
     while True:
-        ret, frame = servicio.capturar_frame()
+        ret, frame = camera.capturar_frame()
         if not ret:
             print("Error: no se pudo leer el frame")
             break
@@ -49,6 +48,7 @@ if __name__ == "__main__":
         piezas_ok_en_frame = 0
         piezas_nok_en_frame = 0
         centroid_list = []
+        piezas = []
         
 
         ar_in_frame = []
@@ -56,62 +56,49 @@ if __name__ == "__main__":
         worst_ar = None
 
         # 1. Extraemos la ROI usando el nuevo método limpio (sin pasarle el frame)
-        roi = servicio.roi_matrix(roi_x, roi_y, roi_x + 300, roi_y + 250)
+        roi = camera.roi_matrix(frame,roi_x, roi_y, roi_x + 300, roi_y + 250)
 
         # 2. Dibujamos el rectángulo en el frame original para el operario
-        cv2.rectangle(frame, (roi_x, roi_y), (roi_x + 300, roi_y + 250), (255, 0, 0), 2) # type: ignore
+        render.draw_roi(frame, roi_x, roi_y, 300, 250)
 
         # 3. Obtenemos el valor del umbral de área desde el trackbar
         umbral_area = cv2.getTrackbarPos("Umbral Area", "Camera Info") # type: ignore type-> int
-        area_text = f"Umbral Area: {umbral_area}"
-        cv2.putText(frame, area_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2, cv2.LINE_AA) # type: ignore
 
         if roi is not None:
             # Pasamos la ROI a escala de grises
-            grey_roi = servicio.roi_to_gray(roi)
+            grey_roi = camera.roi_to_gray(roi)
 
             # Noise filter
-            filtered_roi = servicio.noise_filter(grey_roi)
-
-            # Threshold
-            #threshold_roi = servicio.threshold_roi(filtered_roi)
+            filtered_roi = camera.noise_filter(grey_roi)
 
             # Adaptive threshold
-            adaptative_roi = servicio.adaptive_threshold_roi(filtered_roi)
+            adaptative_roi = camera.adaptive_threshold_roi(filtered_roi)
 
             # Morph clean
-            morph_cleaned = servicio.morph_clean(adaptative_roi)
+            morph_cleaned = camera.morph_clean(adaptative_roi)
 
             # Edge detection
-            edges = servicio.detect_edges(morph_cleaned)
-            #cv2.imshow("ROI Edge Detection", edges) # type: ignore
+            edges = camera.detect_edges(morph_cleaned)
 
             # Buscamos los contornos válidos dentro de la ROI
-            valid_contours = servicio.find_and_filter_contours(edges, min_area=400)
+            valid_contours = camera.find_and_filter_contours(edges, min_area=400)
 
             contorno_desplazado = [contorno + [roi_x, roi_y] for contorno in valid_contours]# Desplazamos el contorno a las coordenadas globales del frame
             
             if len(valid_contours) > 0:
-                cv2.drawContours(frame, contorno_desplazado, -1, (0, 255, 0), 2) # dibujamos todos los contornos  
-                                                                        #válidos en el frame original para el operario
-
-                # Cálculo del bounding box de cada contorno válido y dibujamos un rectángulo alrededor de cada uno
-                for contour in valid_contours:
-                    x, y, w, h = cv2.boundingRect(contour)
-                    M = cv2.moments(contour)
+                
+                # "Evaluamos cada contorno: centroide, área, aspect ratio y estado OK/NOK
+                for contorno in contorno_desplazado:
+                    M = cv2.moments(contorno)
                     if M["m00"] != 0:
                         cx = int(M["m10"] / M["m00"])
                         cy = int(M["m01"] / M["m00"])
-                        global_cx = roi_x + cx
-                        global_cy = roi_y + cy  
-                        centroid_list.append((global_cx, global_cy))
-                    
-                    cv2.rectangle(frame,  (roi_x + x, roi_y + y), (roi_x + x + w, roi_y + y + h), (0, 0, 255), 2)
+                        centroid_list.append((cx, cy))
                     
                     # Cálculo del área de cada contorno válido
-                    area = cv2.contourArea(contour)
+                    area = cv2.contourArea(contorno) # type: ignore
 
-                    ar = inspection.calculate_aspect_ratio(contour)
+                    ar = inspection.calculate_aspect_ratio(contorno)
                     if ar is not None:
                         ar_in_frame.append(ar)
 
@@ -121,37 +108,24 @@ if __name__ == "__main__":
 
                     is_valid_ar = inspection.is_valid_shape(ar)
 
-                    if area < umbral_area or not is_valid_ar:
-                        text_color = (0, 0, 255)  # Rojo para áreas pequeñas o deformadas
-                        text_warning = "ALERTA: Objeto NOK"
-                        piezas_nok_en_frame += 1
+                    is_ok = (area >= umbral_area) and is_valid_ar
+                    if is_ok:
+                        piezas_ok_en_frame += 1
                     else:
-                        text_color = (0, 255, 0)  # Verde para piezas correctas
-                        text_warning = "Objeto OK"
-                        piezas_ok_en_frame += 1 
+                        piezas_nok_en_frame += 1
                         
-                    
-                    cv2.putText(frame, 
-                                text_warning, 
-                                (roi_x + x, roi_y + y - 5), 
-                                cv2.FONT_HERSHEY_SIMPLEX, 
-                                0.5, 
-                                text_color, 
-                                1)
-                
-                #servicio.show_roi(roi) 
-            total_tracking_count = tracking.update(centroid_list)
+                    piezas.append(RenderablePiece(contour=contorno, is_ok=is_ok))
 
-        # Actualizamos las cadenas de texto con los totales reales del frame procesado
-        text_cnt_ok = f"Piezas OK: {piezas_ok_en_frame}"
-        text_cnt_nok = f"Piezas NOK: {piezas_nok_en_frame}"
-        text_cnt_tracking = f"Objetos Rastreados: {total_tracking_count}"
-        # Pintamos los textos siempre actualizados en el panel principal
-        cv2.putText(frame, text_cnt_nok, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2, cv2.LINE_AA) # type: ignore
-        cv2.putText(frame, text_cnt_ok, (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2, cv2.LINE_AA) # type: ignore
-        cv2.putText(frame, text_cnt_tracking, (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2, cv2.LINE_AA) # type: ignore
-        cv2.line(frame, (200, tracking.line_y), (500, tracking.line_y), (255, 255, 0), 2) # type: ignore
-        # 5. Mostramos las ventanas
+                #pintamos los contornos y rectángulos de las piezas detectadas en el frame original
+                render.trace_objects(frame, piezas)  # Llamamos al método trace_objects del camera de renderizado
+
+            total_tracking_count = tracking.update(centroid_list)
+        
+        render.draw_hud(frame, umbral_area, piezas_ok_en_frame, piezas_nok_en_frame, total_tracking_count)
+
+        render.draw_line(frame,(roi_x,tracking.line_y),(roi_x + 300,tracking.line_y))
+
+        # 5. Mostramos la ventana
         cv2.imshow("Camera Info", frame) # type: ignore
 
         cnt -= 1
@@ -182,4 +156,4 @@ if __name__ == "__main__":
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
-    servicio.release()
+    camera.release()
