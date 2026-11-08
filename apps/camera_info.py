@@ -55,7 +55,7 @@ if __name__ == "__main__":
         mean_ar = None
         worst_ar = None
 
-        # 1. Extraemos la ROI usando el nuevo método limpio (sin pasarle el frame)
+        # 1. Extraemos la ROI usando el nuevo método limpio 
         roi = camera.roi_matrix(frame,roi_x, roi_y, roi_x + 300, roi_y + 250)
 
         # 2. Dibujamos el rectángulo en el frame original para el operario

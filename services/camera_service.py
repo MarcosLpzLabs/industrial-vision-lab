@@ -45,19 +45,19 @@ class CameraService:
 
     def capturar_frame(self):
         if not self.camera.isOpened():
-            logging.error(f"Error: no se puede abrir la cámara en el índice {self.camera_index}")
+            logger.error(f"Error: no se puede abrir la cámara en el índice {self.camera_index}")
             return False, None
         ret, frame = self.camera.read()
 
         if not ret:
-            logging.error("Error: no se pudo leer el frame")
+            logger.error("Error: no se pudo leer el frame")
             return False, None
         return ret, frame
     
     
     def roi_matrix(self,frame, x_inicio, y_inicio, x_fin, y_fin):
         if not isinstance(frame, numpy.ndarray):
-            logging.warning("No hay un frame válido disponible para recortar la ROI.")
+            logger.warning("No hay un frame válido disponible para recortar la ROI.")
             return None
 
         # Asegurarse de que las coordenadas estén dentro de los límites del frame

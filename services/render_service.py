@@ -65,10 +65,3 @@ class RenderService:
         cv2.line(frame, pt1, pt2, self.color_line, self.grosor_trazo)
 
 
-    def mostrar_fps(self): #Pendiente corregir, ahora mismo no se está usando
-        self.fps = self.camera.get(cv2.CAP_PROP_FPS)
-        if self.fps <= 0:
-            self.text_fps = "no disponible"
-        else:
-            self.text_fps = self.fps
-        print("FPS: ", self.text_fps)
