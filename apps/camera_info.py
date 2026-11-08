@@ -21,6 +21,7 @@ if __name__ == "__main__":
     piezas_ok_en_frame = 0
     piezas_nok_en_frame = 0
     total_tracking_count = 0
+    intentos_fallados = 0
     
     try:
         # Los servicios siempre se instancian fuera del loop principal para evitar problemas de rendimiento  
@@ -32,18 +33,26 @@ if __name__ == "__main__":
         tracking = TrackingService(line_y=225) # defect TrackingService(max_distance=50, max_disappeared=5)
         render = RenderService() #ahora mismo coge valores por defecto, pero se puede pasar parámetros para cambiar colores y grosor de trazo
         cv2.namedWindow("Camera Info")
-        cv2.createTrackbar("Umbral Area", "Camera Info", 5000, 10000, camera.callback_function) 
+        cv2.createTrackbar("Umbral Area", "Camera Info", 5000, 10000, camera.callback_function)
 
     except CameraConectionError as exc:
         logging.error(f"Error de conexión de la cámara: {exc}")
         raise SystemExit(1)
 
     while True:
-        ret, frame = camera.capturar_frame()
-        if not ret:
-            print("Error: no se pudo leer el frame")
-            break
-        
+        frame = camera.latest_frame(timeout=0.1)  # Intentamos obtener el frame más reciente con un timeout de 0.1s
+        if frame is None:
+            intentos_fallados += 1
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
+            # si se supera umbral de 30 fallos (timeout de 0.1s cada uno) se cierra limpio
+            if intentos_fallados >= 30:
+                logging.error("Error: No se pudo obtener un frame de la cámara después de 30 intentos fallidos.")
+                break
+            continue  # Si no se obtiene un frame, continuamos con el siguiente ciclo del bucle sin procesar nada más
+    
+        intentos_fallados = 0  # Reset del contador de intentos fallidos si se obtiene un frame
+
         # Reset de contadores de piezas por frame
         piezas_ok_en_frame = 0
         piezas_nok_en_frame = 0

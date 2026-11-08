@@ -18,6 +18,7 @@ class CameraService:
         self._stop = threading.Event()  # Evento para detener el hilo de captura
         self._thread = None  # Hilo de captura
         self.max_index = max_index
+        self.dropped_frames = 0  # Contador de frames descartados
 
     def start_capture(self):
         #comprobamos si la cámara está abierta, si no lo está, intentamos abrirla
@@ -39,11 +40,32 @@ class CameraService:
                     break
         
 
-        if not self.camera.isOpened():
+        if not self.camera.isOpened() :
             raise CameraConectionError(f"No se puede abrir ninguna cámara. Intentados índices 0-{self.max_index}")
 
+        self._stop.clear()  # Aseguramos que el evento de parada esté limpio
+        target = self._capture_loop
+        self._thread = threading.Thread(target=target, daemon=True)
+        self._thread.start()
 
-    def capturar_frame(self):
+    def _capture_loop(self):
+        while not self._stop.is_set(): #mientras el evento de parada no esté activado
+            ret, frame = self._capturar_frame() #leer la cámara
+            if not ret:
+                logger.error("Error: no se pudo leer el frame en el bucle de captura")
+                break
+            try:
+                self.buffer.put_nowait(frame)  # Intentamos poner el frame en el buffer
+            except queue.Full:
+                try:
+                    self.buffer.get_nowait()  # Sacamos el frame más viejo para hacer espacio
+                    self.dropped_frames += 1  # Incrementamos el contador de frames descartados
+                    self.buffer.put_nowait(frame)  # Intentamos poner el frame de nuevo
+                except queue.Empty:
+                    self.buffer.put_nowait(frame)  # Si no hay nada, lo ponemos de nuevo
+
+
+    def _capturar_frame(self):
         if not self.camera.isOpened():
             logger.error(f"Error: no se puede abrir la cámara en el índice {self.camera_index}")
             return False, None
@@ -54,7 +76,15 @@ class CameraService:
             return False, None
         return ret, frame
     
-    
+
+    def latest_frame(self,timeout=0.1):
+        try:
+            frame = self.buffer.get(timeout=timeout)  # Intentamos obtener el frame más reciente
+            return frame
+        except queue.Empty:
+            #no hacemos logger, con un timeout de 0.1s serían demasiados registros
+            return None
+            
     def roi_matrix(self,frame, x_inicio, y_inicio, x_fin, y_fin):
         if not isinstance(frame, numpy.ndarray):
             logger.warning("No hay un frame válido disponible para recortar la ROI.")
